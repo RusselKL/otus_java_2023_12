@@ -1,12 +1,9 @@
 package ru.otus;
 
-@SuppressWarnings({"java:S1135"}) // при выполнении ДЗ эту аннотацию надо удалить
-public class Customer {
+public class Customer implements Comparable<Customer> {
     private final long id;
     private String name;
     private long scores;
-
-    // todo: 1. в этом классе надо исправить ошибки
 
     public Customer(long id, String name, long scores) {
         this.id = id;
@@ -46,16 +43,17 @@ public class Customer {
 
         Customer customer = (Customer) o;
 
-        if (id != customer.id) return false;
-        if (scores != customer.scores) return false;
-        return name != null ? name.equals(customer.name) : customer.name == null;
+        return id == customer.id;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (id ^ (id >>> 32));
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (int) (scores ^ (scores >>> 32));
-        return result;
+        return (int) id;
     }
+
+    @Override
+    public int compareTo(Customer o) {
+        return Long.compare(scores, o.scores);
+    }
+
 }
