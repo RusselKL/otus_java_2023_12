@@ -9,7 +9,6 @@ public class TestClass {
     @Before
     void setUp() {
         System.out.println("setUp");
-        throw new RuntimeException("Ooops in setUp");
     }
 
     @After
@@ -18,9 +17,24 @@ public class TestClass {
     }
 
     @Test
-    void buildMessageTest() {
-        System.out.println("buildMessageTest");
-        throw new RuntimeException("Ooops in buildMessageTest");
+    void firstTest() {
+        System.out.println("firstTest");
+    }
+
+    @Test
+    void secondTest() {
+        System.out.println("secondTest");
+    }
+
+    @Test
+    void exceptionTest() {
+        System.out.println("exceptionTest");
+        throw new RuntimeException("Ooops you got exception");
+    }
+
+    @Test
+    void thirdTest() {
+        System.out.println("thirdTest");
     }
 
 }

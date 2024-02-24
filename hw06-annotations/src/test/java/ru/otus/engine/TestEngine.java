@@ -16,55 +16,65 @@ public class TestEngine {
 
     public static <T> void run(T testClass) {
         Class<?> clazz = testClass.getClass();
-        Map<Class<? extends Annotation>, List<Method>> methodsForAnnotations = new HashMap<>();
         try {
             Method[] declaredMethods = clazz.getDeclaredMethods();
-            getAnnotatedMethods(methodsForAnnotations, declaredMethods);
+            var annotatedMethods = getAnnotatedMethods(declaredMethods);
 
-            executeMethods(methodsForAnnotations, testClass, Before.class);
-            executeMethods(methodsForAnnotations, testClass, Test.class);
-            executeMethods(methodsForAnnotations, testClass, After.class);
+            List<Method> beforeMethods = annotatedMethods.get(Before.class);
+            var beforeMethodsPassed = executeMethods(beforeMethods, testClass);
+
+            List<Method> testMethods = annotatedMethods.get(Test.class);
+            var testMethodsPassed = executeMethods(testMethods, testClass);
+
+            List<Method> afterMethods = annotatedMethods.get(After.class);
+            var afterMethodsPassed = executeMethods(afterMethods, testClass);
+
+            var total = beforeMethods.size() + testMethods.size() + afterMethods.size();
+            var passed = beforeMethodsPassed.size() + testMethodsPassed.size() + afterMethodsPassed.size();
+            var failed = total - passed;
+
+            System.out.printf("Total: %1$d\nPassed: %2$d\nFailed: %3$d", total, passed, failed);
         } catch (Exception exception) {
             System.out.println("Test run failed: " + exception.getMessage());
         }
     }
 
-    private static void getAnnotatedMethods(
-            Map<Class<? extends Annotation>, List<Method>> methodsForAnnotations,
-            Method[] declaredMethods
-    ) {
+    private static Map<Class<? extends Annotation>, List<Method>> getAnnotatedMethods(Method[] declaredMethods) {
+        Map<Class<? extends Annotation>, List<Method>> annotatedMethods = new HashMap<>();
         for (Method method : declaredMethods) {
             Annotation[] annotations = method.getDeclaredAnnotations();
             for (Annotation annotation : annotations) {
-                if (!methodsForAnnotations.containsKey(annotation.annotationType())) {
+                if (!annotatedMethods.containsKey(annotation.annotationType())) {
                     var methods = new ArrayList<Method>();
                     methods.add(method);
-                    methodsForAnnotations.put(annotation.annotationType(), methods);
+                    annotatedMethods.put(annotation.annotationType(), methods);
                 } else {
-                    methodsForAnnotations.get(annotation.annotationType()).add(method);
+                    annotatedMethods.get(annotation.annotationType()).add(method);
                 }
             }
         }
+        return annotatedMethods;
     }
 
-    private static <T> void executeMethods(
-            Map<Class<? extends Annotation>, List<Method>> methodsForAnnotations,
-            T testClass,
-            Class<? extends Annotation> annotationType
+    private static <T> List<Method> executeMethods(
+            List<Method> methodsToExecute,
+            T testClass
     ) {
-        List<Method> methodsToExecute = methodsForAnnotations.get(annotationType);
+        List<Method> methodsSucceed = new ArrayList<>();
         if (methodsToExecute != null) {
             for (Method method : methodsToExecute) {
                 try {
                     method.setAccessible(true);
                     method.invoke(testClass);
-                } catch (InvocationTargetException exception) {
-                    System.out.println("Method execution failed: " + exception.getTargetException().getMessage());
+                    methodsSucceed.add(method);
                 } catch (IllegalAccessException exception) {
                     System.out.println("Method execution failed: " + exception.getMessage());
+                } catch (InvocationTargetException exception) {
+                    System.out.println("Method execution failed: " + exception.getTargetException().getMessage());
                 }
             }
         }
+        return methodsSucceed;
     }
 
 }
