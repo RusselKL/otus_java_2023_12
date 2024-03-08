@@ -5,6 +5,7 @@ import ru.otus.annotaions.Before;
 import ru.otus.annotaions.Test;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,18 +15,19 @@ import java.util.Map;
 
 public class TestEngine {
 
-    public static <T> void run(T testClass) {
-        Class<?> clazz = testClass.getClass();
+    public static <T> void run(Class<T> clazz) {
         try {
             Method[] declaredMethods = clazz.getDeclaredMethods();
-            var annotatedMethods = getAnnotatedMethods(declaredMethods);
+            Constructor<T> constructor = clazz.getConstructor();
 
+            var annotatedMethods = getAnnotatedMethods(declaredMethods);
             List<Method> beforeMethods = annotatedMethods.get(Before.class);
             List<Method> testMethods = annotatedMethods.get(Test.class);
             List<Method> afterMethods = annotatedMethods.get(After.class);
 
             var passed = 0;
             for (Method test : testMethods) {
+                var testClass = constructor.newInstance();
                 executeMethods(beforeMethods, testClass);
                 if (executeMethod(test, testClass)) passed++;
                 executeMethods(afterMethods, testClass);
@@ -57,34 +59,24 @@ public class TestEngine {
         return annotatedMethods;
     }
 
-    private static <T> List<Method> executeMethods(
-            List<Method> methodsToExecute,
+    private static <T> void executeMethods(
+            List<Method> methods,
             T testClass
     ) {
-        List<Method> methodsSucceed = new ArrayList<>();
-        if (methodsToExecute != null) {
-            for (Method method : methodsToExecute) {
-                try {
-                    method.setAccessible(true);
-                    method.invoke(testClass);
-                    methodsSucceed.add(method);
-                } catch (IllegalAccessException exception) {
-                    System.out.println("Method execution failed: " + exception.getMessage());
-                } catch (InvocationTargetException exception) {
-                    System.out.println("Method execution failed: " + exception.getTargetException().getMessage());
-                }
+        if (methods != null) {
+            for (Method method : methods) {
+                executeMethod(method, testClass);
             }
         }
-        return methodsSucceed;
     }
 
     private static <T> Boolean executeMethod(
-            Method methodToExecute,
+            Method method,
             T testClass
     ) {
         try {
-            methodToExecute.setAccessible(true);
-            methodToExecute.invoke(testClass);
+            method.setAccessible(true);
+            method.invoke(testClass);
             return true;
         } catch (IllegalAccessException exception) {
             System.out.println("Method execution failed: " + exception.getMessage());
