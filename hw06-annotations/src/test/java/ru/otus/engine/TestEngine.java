@@ -21,16 +21,17 @@ public class TestEngine {
             var annotatedMethods = getAnnotatedMethods(declaredMethods);
 
             List<Method> beforeMethods = annotatedMethods.get(Before.class);
-            var beforeMethodsPassed = executeMethods(beforeMethods, testClass);
-
             List<Method> testMethods = annotatedMethods.get(Test.class);
-            var testMethodsPassed = executeMethods(testMethods, testClass);
-
             List<Method> afterMethods = annotatedMethods.get(After.class);
-            var afterMethodsPassed = executeMethods(afterMethods, testClass);
 
-            var total = beforeMethods.size() + testMethods.size() + afterMethods.size();
-            var passed = beforeMethodsPassed.size() + testMethodsPassed.size() + afterMethodsPassed.size();
+            var passed = 0;
+            for (Method test : testMethods) {
+                executeMethods(beforeMethods, testClass);
+                if (executeMethod(test, testClass)) passed++;
+                executeMethods(afterMethods, testClass);
+            }
+
+            var total = testMethods.size();
             var failed = total - passed;
 
             System.out.printf("Total: %1$d\nPassed: %2$d\nFailed: %3$d", total, passed, failed);
@@ -75,6 +76,23 @@ public class TestEngine {
             }
         }
         return methodsSucceed;
+    }
+
+    private static <T> Boolean executeMethod(
+            Method methodToExecute,
+            T testClass
+    ) {
+        try {
+            methodToExecute.setAccessible(true);
+            methodToExecute.invoke(testClass);
+            return true;
+        } catch (IllegalAccessException exception) {
+            System.out.println("Method execution failed: " + exception.getMessage());
+            return false;
+        } catch (InvocationTargetException exception) {
+            System.out.println("Method execution failed: " + exception.getTargetException().getMessage());
+            return false;
+        }
     }
 
 }
