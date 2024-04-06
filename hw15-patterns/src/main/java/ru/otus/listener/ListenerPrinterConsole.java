@@ -9,6 +9,6 @@ public class ListenerPrinterConsole implements Listener {
 
     @Override
     public void onUpdated(Message msg) {
-        logger.info("oldMsg:{}", msg);
+        logger.info("newMsg:{}", msg);
     }
 }

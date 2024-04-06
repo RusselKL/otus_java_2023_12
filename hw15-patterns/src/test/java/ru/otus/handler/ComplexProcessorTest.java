@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
 import ru.otus.processor.Processor;
+import ru.otus.processor.homework.ExceptionTimeProcessor;
+import ru.otus.processor.homework.LocalDateTimeProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +66,33 @@ class ComplexProcessorTest {
 
         // then
         verify(processor1, times(1)).process(message);
+        verify(processor2, never()).process(message);
+    }
+
+    @Test
+    @DisplayName("Тестируем вызов exception процессора")
+    void handleExceptionProcessorTest() {
+        // given
+        var message = new Message.Builder(1L).field8("field8").build();
+
+        var timeProvider = mock(LocalDateTimeProvider.class);
+        when(timeProvider.getSecond()).thenReturn(2);
+
+        var processor1 = new ExceptionTimeProcessor(timeProvider);
+
+        var processor2 = mock(Processor.class);
+        when(processor2.process(message)).thenReturn(message);
+
+        var processors = List.of(processor1, processor2);
+
+        var complexProcessor = new ComplexProcessor(processors, (ex) -> {
+            throw new TestException(ex.getMessage());
+        });
+
+        // when
+        assertThatExceptionOfType(TestException.class).isThrownBy(() -> complexProcessor.handle(message));
+
+        // then
         verify(processor2, never()).process(message);
     }
 
