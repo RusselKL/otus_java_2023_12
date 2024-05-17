@@ -1,12 +1,5 @@
 package ru.otus.homework;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
-
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -17,19 +10,25 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.jdbc.spi.SqlStatementLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ru.otus.crm.model.Address;
 import ru.otus.crm.model.Client;
 import ru.otus.crm.model.Phone;
+
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class HomeworkTest {
 
     private StandardServiceRegistry serviceRegistry;
     private Metadata metadata;
     private SessionFactory sessionFactory;
-
-    // Кроме удаления @Disabled, тестовый класс менять нельзя
 
     @BeforeEach
     public void setUp() {
@@ -41,7 +40,6 @@ class HomeworkTest {
         sessionFactory.close();
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testHomeworkRequirementsForTablesCount() {
 
@@ -51,7 +49,6 @@ class HomeworkTest {
         assertThat(tables).hasSize(3);
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testHomeworkRequirementsForUpdatesCount() {
         applyCustomSqlStatementLogger(new SqlStatementLogger(true, false, false, 0) {
@@ -79,7 +76,6 @@ class HomeworkTest {
         }
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testForHomeworkRequirementsForClientReferences() throws Exception {
         var client = new Client(
@@ -90,14 +86,13 @@ class HomeworkTest {
         assertThatClientHasCorrectReferences(client);
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testForHomeworkRequirementsForClonedClientReferences() throws Exception {
         var client = new Client(
-                        null,
-                        "Vasya",
-                        new Address(null, "AnyStreet"),
-                        List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")))
+                null,
+                "Vasya",
+                new Address(null, "AnyStreet"),
+                List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")))
                 .clone();
         assertThatClientHasCorrectReferences(client);
     }
@@ -126,14 +121,14 @@ class HomeworkTest {
     private void assertThatObjectHasExpectedClientFieldValue(Object object, Client client) {
         assertThat(object).isNotNull();
         assertThatCode(() -> {
-                    for (var field : object.getClass().getDeclaredFields()) {
-                        if (field.getType().equals(Client.class)) {
-                            field.setAccessible(true);
-                            var innerClient = field.get(object);
-                            assertThat(innerClient).isNotNull().isSameAs(client);
-                        }
-                    }
-                })
+            for (var field : object.getClass().getDeclaredFields()) {
+                if (field.getType().equals(Client.class)) {
+                    field.setAccessible(true);
+                    var innerClient = field.get(object);
+                    assertThat(innerClient).isNotNull().isSameAs(client);
+                }
+            }
+        })
                 .doesNotThrowAnyException();
     }
 
