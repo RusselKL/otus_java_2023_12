@@ -3,6 +3,7 @@ package ru.otus.demo;
 import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.cachehw.MyCache;
 import ru.otus.core.repository.DataTemplateHibernate;
 import ru.otus.core.repository.HibernateUtils;
 import ru.otus.core.sessionmanager.TransactionManagerHibernate;
@@ -12,6 +13,9 @@ import ru.otus.crm.model.Client;
 import ru.otus.crm.model.Phone;
 import ru.otus.crm.service.DbServiceClientImpl;
 
+/**
+ * VM options -Xmx16m -Xms16m -Xlog:gc=debug
+ */
 public class DbServiceDemo {
 
     private static final Logger log = LoggerFactory.getLogger(DbServiceDemo.class);
@@ -33,22 +37,38 @@ public class DbServiceDemo {
         ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
         ///
-        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
-        dbServiceClient.saveClient(new Client("dbServiceFirst"));
+        var myCache = new MyCache<String, Client>();
+        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate, myCache);
+
+        var clientFirst = dbServiceClient.saveClient(new Client("dbServiceFirst"));
+        log.info("current cash size: {}", myCache.size());
+        myCache.cacheInfo();
 
         var clientSecond = dbServiceClient.saveClient(new Client("dbServiceSecond"));
+        log.info("current cash size: {}", myCache.size());
+        myCache.cacheInfo();
+
+        var originTimeCache = System.nanoTime();
         var clientSecondSelected = dbServiceClient
                 .getClient(clientSecond.getId())
                 .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecond.getId()));
+        var timeCache = System.nanoTime() - originTimeCache;
+        log.info("Get client from cache time: {}", timeCache); // в кеше есть клиент, достаем его оттуда (почти мгновенно)
         log.info("clientSecondSelected:{}", clientSecondSelected);
-        ///
-        dbServiceClient.saveClient(new Client(clientSecondSelected.getId(), "dbServiceSecondUpdated"));
-        var clientUpdated = dbServiceClient
-                .getClient(clientSecondSelected.getId())
-                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientSecondSelected.getId()));
-        log.info("clientUpdated:{}", clientUpdated);
 
-        log.info("All clients");
-        dbServiceClient.findAll().forEach(client -> log.info("client:{}", client));
+        //После создания 3го объекта клиента, gc пойдет чистить хип, так как места уже будет не хватать.
+        //Тогда наш кеш тоже почистится
+        dbServiceClient.saveClient(new Client(clientSecondSelected.getId(), "dbServiceSecondUpdated"));
+        log.info("current cash size: {}", myCache.size()); // будет содержать только последнего клиента
+        myCache.cacheInfo();
+
+        var originTimeDB = System.nanoTime();
+        var clientFirstDB = dbServiceClient
+                .getClient(clientFirst.getId())
+                .orElseThrow(() -> new RuntimeException("Client not found, id:" + clientFirst.getId()));
+        var timeDB = System.nanoTime() - originTimeDB;
+        log.info("Get client from db time: {}", timeDB); // в кеше нет нужного клиента, поэтому идем в базу (выходит гораздо дольше)
+
+        log.info("Cache was faster than DB by: {} times", timeDB / timeCache);
     }
 }
