@@ -15,10 +15,11 @@ import ru.otus.domain.crm.dbmigrations.MigrationsExecutorFlyway;
 import ru.otus.domain.crm.model.Address;
 import ru.otus.domain.crm.model.Client;
 import ru.otus.domain.crm.model.Phone;
+import ru.otus.domain.crm.model.Role;
 import ru.otus.domain.crm.service.DBServiceClient;
 import ru.otus.domain.crm.service.DbServiceClientImpl;
 
-import static ru.otus.domain.demo.DbServiceDemo.HIBERNATE_CFG_FILE;
+import static ru.otus.WebServerWithBasicSecurityDemo.HIBERNATE_CFG_FILE;
 
 public abstract class AbstractHibernateTest {
     protected SessionFactory sessionFactory;
@@ -53,7 +54,7 @@ public abstract class AbstractHibernateTest {
         configuration.setProperty("hibernate.connection.username", dbUserName);
         configuration.setProperty("hibernate.connection.password", dbPassword);
 
-        sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class);
+        sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class, Address.class, Phone.class, Role.class);
 
         transactionManager = new TransactionManagerHibernate(sessionFactory);
         clientTemplate = new DataTemplateHibernate<>(Client.class);

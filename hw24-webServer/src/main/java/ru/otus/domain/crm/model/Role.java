@@ -12,11 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "phone")
-public class Phone {
+@Table(name = "role")
+public class Role {
     @Id
-    @SequenceGenerator(name = "phone_gen", sequenceName = "phone_seq", initialValue = 1, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phone_gen")
+    @SequenceGenerator(name = "role_gen", sequenceName = "role_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_gen")
+    @Column(name = "id")
     @Expose
     private Long id;
 
@@ -25,12 +26,12 @@ public class Phone {
     @Expose(serialize = false)
     private Client client;
 
-    @Column(name = "number", unique = true)
+    @Column(name = "role")
     @Expose
-    private String number;
+    private String role;
 
-    public Phone(Long id, String number) {
+    public Role(Long id, String role) {
         this.id = id;
-        this.number = number;
+        this.role = role;
     }
 }
