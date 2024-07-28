@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import ru.otus.domain.crm.model.Address;
 import ru.otus.domain.crm.model.Client;
 import ru.otus.domain.crm.model.Phone;
+import ru.otus.domain.crm.model.Role;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
@@ -46,7 +47,7 @@ class HomeworkTest {
         var tables = StreamSupport.stream(metadata.getDatabase().getNamespaces().spliterator(), false)
                 .flatMap(namespace -> namespace.getTables().stream())
                 .collect(Collectors.toList());
-        assertThat(tables).hasSize(3);
+        assertThat(tables).hasSize(4);
     }
 
     @Test
@@ -62,6 +63,8 @@ class HomeworkTest {
         var client = new Client(
                 null,
                 "Vasya",
+                "VasyaPassword",
+                List.of(new Role(null, "user")),
                 new Address(null, "AnyStreet"),
                 List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")));
         try (var session = sessionFactory.openSession()) {
@@ -81,6 +84,8 @@ class HomeworkTest {
         var client = new Client(
                 null,
                 "Vasya",
+                "VasyaPassword",
+                List.of(new Role(null, "user")),
                 new Address(null, "AnyStreet"),
                 List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")));
         assertThatClientHasCorrectReferences(client);
@@ -91,6 +96,8 @@ class HomeworkTest {
         var client = new Client(
                 null,
                 "Vasya",
+                "VasyaPassword",
+                List.of(new Role(null, "user")),
                 new Address(null, "AnyStreet"),
                 List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")))
                 .clone();
@@ -158,6 +165,7 @@ class HomeworkTest {
         metadataSources.addAnnotatedClass(Phone.class);
         metadataSources.addAnnotatedClass(Address.class);
         metadataSources.addAnnotatedClass(Client.class);
+        metadataSources.addAnnotatedClass(Role.class);
         metadata = metadataSources.getMetadataBuilder().build();
         sessionFactory = metadata.getSessionFactoryBuilder().build();
     }
