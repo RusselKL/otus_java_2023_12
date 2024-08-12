@@ -35,6 +35,8 @@ allprojects {
     val jmh: String by project
     val asm: String by project
 
+    val reflections: String by project
+
     val jetty: String by project
     val jettyServlet: String by project
     val freemarker: String by project
@@ -51,6 +53,8 @@ allprojects {
             dependency("org.openjdk.jmh:jmh-core:$jmh")
             dependency("org.openjdk.jmh:jmh-generator-annprocess:$jmh")
             dependency("org.ow2.asm:asm-commons:$asm")
+
+            dependency("org.reflections:reflections:$reflections")
 
             dependency("org.eclipse.jetty.ee10:jetty-ee10-servlet:$jetty")
             dependency("org.eclipse.jetty:jetty-server:$jetty")
