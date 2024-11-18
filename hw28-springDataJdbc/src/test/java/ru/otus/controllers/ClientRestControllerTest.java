@@ -5,8 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.otus.domain.DBServiceClient;
@@ -24,8 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("WithContextTest: REST-контроллер клиентов ")
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(ClientRestController.class)
 class ClientRestControllerTest {
 
     @Autowired
@@ -41,7 +39,7 @@ class ClientRestControllerTest {
 
         given(dbServiceClient.findAll()).willReturn(List.of(initialClient));
 
-        mvc.perform(get("/api/clients").accept("application/json; charset=utf-8"))
+        mvc.perform(get("/api/client").accept("application/json; charset=utf-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Ilon")));
     }
@@ -57,7 +55,7 @@ class ClientRestControllerTest {
         given(dbServiceClient.saveClient(any(Client.class))).willReturn(clientToCreate);
 
         mvc.perform(
-                        post("/api/client/create")
+                        post("/api/client")
                                 .contentType("application/json; charset=utf-8")
                                 .content(json)
                                 .accept("application/json; charset=utf-8")

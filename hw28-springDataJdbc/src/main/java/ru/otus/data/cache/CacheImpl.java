@@ -2,7 +2,7 @@ package ru.otus.data.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.otus.domain.cache.Cache;
 import ru.otus.domain.cache.CacheListener;
 
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-@Repository
+@Component
 public class CacheImpl<K, V> implements Cache<K, V> {
 
     private static final Logger log = LoggerFactory.getLogger(CacheImpl.class);

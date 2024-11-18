@@ -6,18 +6,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import ru.otus.domain.DBServiceClient;
 
 @Controller
-public class ConsoleController {
+public class ClientController {
 
     private final DBServiceClient dbServiceClient;
 
-    public ConsoleController(DBServiceClient dbServiceClient) {
+    public ClientController(DBServiceClient dbServiceClient) {
         this.dbServiceClient = dbServiceClient;
     }
 
     @GetMapping("/console")
     public String consoleView(Model model) {
-        var clientsNumber = dbServiceClient.findAll().size();
-        model.addAttribute("clientsNumber", clientsNumber);
+        var clientsCount = dbServiceClient.findAll().size();
+        model.addAttribute("clientsCount", clientsCount);
         return "console";
     }
 

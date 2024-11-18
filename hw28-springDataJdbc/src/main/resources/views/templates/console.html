@@ -4,7 +4,7 @@
     <script>
         function getClients() {
             const clientsContainer = document.getElementById('clientsContainer');
-            fetch("api/clients")
+            fetch("api/client")
                 .then(response => response.json())
                 .then(clients => clientsContainer.innerHTML = JSON.stringify(clients, null, "\t"));
         }
@@ -16,7 +16,7 @@
 
             const createdClient = document.getElementById('createdClient');
 
-            const request = new Request("api/client/create", {
+            const request = new Request("api/client", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +40,7 @@
 <body>
 
 <h4>Общее количество клиентов:</h4>
-<span th:text="${clientsNumber}"></span>
+<span th:text="${clientsCount}"></span>
 
 <h4>Создать клиента</h4>
 <div>

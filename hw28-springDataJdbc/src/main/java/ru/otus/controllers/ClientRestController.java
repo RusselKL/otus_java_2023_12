@@ -21,14 +21,14 @@ public class ClientRestController {
         this.dbServiceClient = dbServiceClient;
     }
 
-    @GetMapping("/api/clients")
+    @GetMapping("/api/client")
     public List<Client> getClients() {
         var clients = dbServiceClient.findAll();
         log.info("DBServiceClient all clients {}", clients);
         return clients;
     }
 
-    @PostMapping("/api/client/create")
+    @PostMapping("/api/client")
     public Client createClient(@RequestBody Client client) {
         log.info("Client from request {}", client);
         var savedClient = dbServiceClient.saveClient(client);
