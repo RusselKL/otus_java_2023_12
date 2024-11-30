@@ -34,6 +34,15 @@
                     createdClient.innerHTML = JSON.stringify(client, null, "\t")
                 );
         }
+
+        function findClient() {
+            const clientFieldName = document.getElementById('clientFieldName').value;
+            const clientFieldValue = document.getElementById('clientFieldValue').value;
+
+            fetch("api/client?fieldName=" + clientFieldName + "&fieldValue=" + clientFieldValue)
+                .then(response => response.json())
+                .then(clients => foundedClientContainer.innerHTML = JSON.stringify(clients, null, "\t"));
+        }
     </script>
 </head>
 
@@ -63,5 +72,19 @@
 <button onclick="getClients()">Получить</button>
 <p>Список клиентов:</p>
 <pre id="clientsContainer"></pre>
+
+<div>
+    <h4>Найти клиента по</h4>
+    <select id="clientFieldName">
+        <option value='id'>id</option>
+        <option value='name'>name</option>
+    </select>
+    <label for="clientFieldValue">Введите значение: </label>
+    <input type="text" name="clientFieldValue" id="clientFieldValue" required/><br/>
+    <button onclick="findClient()">Найти</button>
+    <p>Найден клиент:</p>
+    <pre id="foundedClientContainer"></pre>
+</div>
+
 </body>
 </html>

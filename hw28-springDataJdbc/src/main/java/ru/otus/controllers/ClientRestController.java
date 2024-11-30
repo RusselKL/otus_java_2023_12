@@ -2,10 +2,7 @@ package ru.otus.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.otus.domain.DBServiceClient;
 import ru.otus.domain.model.Client;
 
@@ -22,7 +19,13 @@ public class ClientRestController {
     }
 
     @GetMapping("/api/client")
-    public List<Client> getClients() {
+    public List<Client> getClients(@RequestParam(required = false) String fieldName, @RequestParam(required = false) Object fieldValue) {
+        log.info("DBServiceClient find client by fieldName: {} and value: {}", fieldName, fieldValue);
+        if (fieldName != null && fieldValue != null) {
+            var clients = dbServiceClient.findClientBy(fieldName, fieldValue);
+            log.info("DBServiceClient find client by fieldName: {} and value: {}, client: {}", fieldName, fieldValue, clients);
+            return clients;
+        }
         var clients = dbServiceClient.findAll();
         log.info("DBServiceClient all clients {}", clients);
         return clients;
