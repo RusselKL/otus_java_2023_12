@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  thymeleaf:
+    prefix: classpath:/views/templates/
+  web:
+    resources:
+      static-locations: classpath:/views/static/
+  datasource:
+    url: jdbc:postgresql://localhost:5430/demoDB
+    username: usr
+    password: pwd
+  flyway:
+    enabled: true
+    locations: classpath:/data/db/migration/
+
+logging:
+  level:
+    org.springframework.jdbc.core.JdbcTemplate: TRACE

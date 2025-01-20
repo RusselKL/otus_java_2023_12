@@ -1,0 +1,90 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Страница администратора</title>
+    <script>
+        function getClients() {
+            const clientsContainer = document.getElementById('clientsContainer');
+            fetch("api/client")
+                .then(response => response.json())
+                .then(clients => clientsContainer.innerHTML = JSON.stringify(clients, null, "\t"));
+        }
+
+        function createClient() {
+            const clientName = document.getElementById('name').value;
+            const clientPassword = document.getElementById('password').value;
+            const clientAddress = document.getElementById('address').value;
+
+            const createdClient = document.getElementById('createdClient');
+
+            const request = new Request("api/client", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(
+                {
+                    name: clientName,
+                    password: clientPassword,
+                    address: { street: clientAddress }
+                }),
+            });
+            fetch(request)
+                .then(response => response.json())
+                .then(client =>
+                    createdClient.innerHTML = JSON.stringify(client, null, "\t")
+                );
+        }
+
+        function findClient() {
+            const clientFieldName = document.getElementById('clientFieldName').value;
+            const clientFieldValue = document.getElementById('clientFieldValue').value;
+
+            fetch("api/client?fieldName=" + clientFieldName + "&fieldValue=" + clientFieldValue)
+                .then(response => response.json())
+                .then(clients => foundedClientContainer.innerHTML = JSON.stringify(clients, null, "\t"));
+        }
+    </script>
+</head>
+
+<body>
+
+<h4>Общее количество клиентов:</h4>
+<span th:text="${clientsCount}"></span>
+
+<h4>Создать клиента</h4>
+<div>
+    <label for="name">Введите имя клиента: </label>
+    <input type="text" name="name" id="name" required/><br/>
+
+    <label for="password">Введите пароль клиента: </label>
+    <input type="text" name="password" id="password" required/><br/>
+
+    <label for="address">Введите адрес клиента: </label>
+    <input type="text" name="address" id="address" required/><br/>
+
+    <input type="submit" value="Создать клиента" onclick="createClient()"/><br/>
+
+    <p>В БД добавлен новый клиент:</p>
+    <pre id="createdClient"></pre>
+</div>
+
+<h4>Получить список клиентов</h4>
+<button onclick="getClients()">Получить</button>
+<p>Список клиентов:</p>
+<pre id="clientsContainer"></pre>
+
+<div>
+    <h4>Найти клиента по</h4>
+    <select id="clientFieldName">
+        <option value='id'>id</option>
+        <option value='name'>name</option>
+    </select>
+    <label for="clientFieldValue">Введите значение: </label>
+    <input type="text" name="clientFieldValue" id="clientFieldValue" required/><br/>
+    <button onclick="findClient()">Найти</button>
+    <p>Найден клиент:</p>
+    <pre id="foundedClientContainer"></pre>
+</div>
+
+</body>
+</html>
